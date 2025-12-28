@@ -1,0 +1,63 @@
+project_name: execman
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: execman
+    binary: execman
+    main: ./cmd/execman
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X github.com/sfkleach/execman/pkg/commands.Version={{.Version}}
+      - -X github.com/sfkleach/execman/pkg/commands.Source=https://github.com/sfkleach/execman
+
+archives:
+  - id: execman-archive
+    format: tar.gz
+    name_template: "execman_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - README.md
+      - LICENSE*
+      - docs/**/*
+
+checksum:
+  name_template: 'checksums.txt'
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^ci:'
+      - '^chore:'
+      - Merge pull request
+      - Merge branch
+  groups:
+    - title: 'New Features'
+      regexp: '^feat.*:.*'
+      order: 0
+    - title: 'Bug fixes'
+      regexp: '^fix.*:.*'
+      order: 1
+    - title: 'Other Changes'
+      order: 999
+
+release:
+  github:
+    owner: sfkleach
+    name: execman
+  draft: false
+  prerelease: auto
+  name_template: "{{.ProjectName}} {{.Version}}"
