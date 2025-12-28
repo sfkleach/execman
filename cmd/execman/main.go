@@ -1,0 +1,116 @@
+package main
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/sfkleach/execman/pkg/version"
+	"github.com/spf13/cobra"
+)
+
+var versionFlag bool
+
+var rootCmd = &cobra.Command{
+	Use:   "execman",
+	Short: "Execman - Executable manager",
+	Long:  `Execman is a command-line tool for managing executables.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if versionFlag {
+			fmt.Println(version.GetVersion())
+		} else {
+			_ = cmd.Help()
+		}
+	},
+}
+
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Print the version number of execman",
+	Long:  `All software has versions. This is execman's`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println(version.GetVersion())
+	},
+}
+
+var installCmd = &cobra.Command{
+	Use:   "install",
+	Short: "Install an executable (TBD)",
+	Long:  `Install an executable (TBD)`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("install subcommand - TBD")
+	},
+}
+
+var infoCmd = &cobra.Command{
+	Use:   "info",
+	Short: "Show information about an executable (TBD)",
+	Long:  `Show information about an executable (TBD)`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("info subcommand - TBD")
+	},
+}
+
+var listCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List managed executables (TBD)",
+	Long:  `List managed executables (TBD)`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("list subcommand - TBD")
+	},
+}
+
+var checkCmd = &cobra.Command{
+	Use:   "check",
+	Short: "Check executable status (TBD)",
+	Long:  `Check executable status (TBD)`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("check subcommand - TBD")
+	},
+}
+
+var updateCmd = &cobra.Command{
+	Use:   "update",
+	Short: "Update an executable (TBD)",
+	Long:  `Update an executable (TBD)`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("update subcommand - TBD")
+	},
+}
+
+var removeCmd = &cobra.Command{
+	Use:   "remove",
+	Short: "Remove an executable (TBD)",
+	Long:  `Remove an executable (TBD)`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("remove subcommand - TBD")
+	},
+}
+
+var adoptCmd = &cobra.Command{
+	Use:   "adopt",
+	Short: "Adopt an existing executable (TBD)",
+	Long:  `Adopt an existing executable (TBD)`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("adopt subcommand - TBD")
+	},
+}
+
+func init() {
+	rootCmd.PersistentFlags().BoolVar(&versionFlag, "version", false, "Print version information")
+
+	rootCmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(installCmd)
+	rootCmd.AddCommand(infoCmd)
+	rootCmd.AddCommand(listCmd)
+	rootCmd.AddCommand(checkCmd)
+	rootCmd.AddCommand(updateCmd)
+	rootCmd.AddCommand(removeCmd)
+	rootCmd.AddCommand(adoptCmd)
+}
+
+func main() {
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
