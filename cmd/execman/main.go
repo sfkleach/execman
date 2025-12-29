@@ -4,11 +4,19 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/sfkleach/execman/pkg/install"
 	"github.com/sfkleach/execman/pkg/version"
 	"github.com/spf13/cobra"
 )
 
 var versionFlag bool
+
+// Install command flags
+var (
+	installInto               string
+	installYes                bool
+	installIncludePrereleases bool
+)
 
 var rootCmd = &cobra.Command{
 	Use:   "execman",
@@ -33,11 +41,21 @@ var versionCmd = &cobra.Command{
 }
 
 var installCmd = &cobra.Command{
-	Use:   "install",
-	Short: "Install an executable (TBD)",
-	Long:  `Install an executable (TBD)`,
+	Use:   "install <github.com/owner/repo>[@version]",
+	Short: "Install an executable from GitHub",
+	Long:  `Install an executable from a GitHub release`,
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("install subcommand - TBD")
+		opts := install.Options{
+			Source:             args[0],
+			Into:               installInto,
+			Yes:                installYes,
+			IncludePrereleases: installIncludePrereleases,
+		}
+		if err := install.Run(opts); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
 	},
 }
 
@@ -97,6 +115,11 @@ var adoptCmd = &cobra.Command{
 
 func init() {
 	rootCmd.PersistentFlags().BoolVar(&versionFlag, "version", false, "Print version information")
+
+	// Install command flags
+	installCmd.Flags().StringVarP(&installInto, "into", "d", "", "Install to specified directory")
+	installCmd.Flags().BoolVarP(&installYes, "yes", "y", false, "Skip confirmation prompts")
+	installCmd.Flags().BoolVar(&installIncludePrereleases, "include-prereleases", false, "Allow installing prerelease versions")
 
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(installCmd)
