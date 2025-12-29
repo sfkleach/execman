@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Executable represents a managed executable in the registry
+// Executable represents a managed executable in the registry.
 type Executable struct {
 	Source      string    `json:"source"`
 	Version     string    `json:"version"`
@@ -18,7 +18,7 @@ type Executable struct {
 	Checksum    string    `json:"checksum"`
 }
 
-// Registry represents the execman registry
+// Registry represents the execman registry.
 type Registry struct {
 	SchemaVersion     int                    `json:"schema_version"`
 	DefaultInstallDir string                 `json:"default_install_dir"`
@@ -26,7 +26,7 @@ type Registry struct {
 	path              string                 // internal, not serialized
 }
 
-// DefaultRegistryPath returns the default registry file path
+// DefaultRegistryPath returns the default registry file path.
 func DefaultRegistryPath() (string, error) {
 	configDir, err := os.UserConfigDir()
 	if err != nil {
@@ -35,7 +35,7 @@ func DefaultRegistryPath() (string, error) {
 	return filepath.Join(configDir, "execman", "registry.json"), nil
 }
 
-// Load loads the registry from the default location
+// Load loads the registry from the default location.
 func Load() (*Registry, error) {
 	path, err := DefaultRegistryPath()
 	if err != nil {
@@ -44,9 +44,9 @@ func Load() (*Registry, error) {
 	return LoadFrom(path)
 }
 
-// LoadFrom loads the registry from a specific path
+// LoadFrom loads the registry from a specific path.
 func LoadFrom(path string) (*Registry, error) {
-	// If file doesn't exist, return a new empty registry
+	// If file doesn't exist, return a new empty registry.
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
@@ -80,9 +80,9 @@ func LoadFrom(path string) (*Registry, error) {
 	return &reg, nil
 }
 
-// Save saves the registry to disk
+// Save saves the registry to disk.
 func (r *Registry) Save() error {
-	// Ensure directory exists
+	// Ensure directory exists.
 	dir := filepath.Dir(r.path)
 	if err := os.MkdirAll(dir, 0750); err != nil {
 		return fmt.Errorf("failed to create config directory: %w", err)
@@ -93,7 +93,7 @@ func (r *Registry) Save() error {
 		return fmt.Errorf("failed to marshal registry: %w", err)
 	}
 
-	// Use 0600 permissions for registry file (user read/write only)
+	// Use 0600 permissions for registry file (user read/write only).
 	if err := os.WriteFile(r.path, data, 0600); err != nil {
 		return fmt.Errorf("failed to write registry: %w", err)
 	}
@@ -101,23 +101,23 @@ func (r *Registry) Save() error {
 	return nil
 }
 
-// Add adds or updates an executable in the registry
+// Add adds or updates an executable in the registry.
 func (r *Registry) Add(name string, exec *Executable) {
 	r.Executables[name] = exec
 }
 
-// Get retrieves an executable from the registry
+// Get retrieves an executable from the registry.
 func (r *Registry) Get(name string) (*Executable, bool) {
 	exec, ok := r.Executables[name]
 	return exec, ok
 }
 
-// Remove removes an executable from the registry
+// Remove removes an executable from the registry.
 func (r *Registry) Remove(name string) {
 	delete(r.Executables, name)
 }
 
-// List returns all executable names
+// List returns all executable names.
 func (r *Registry) List() []string {
 	names := make([]string, 0, len(r.Executables))
 	for name := range r.Executables {

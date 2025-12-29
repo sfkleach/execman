@@ -11,7 +11,7 @@ import (
 
 var versionFlag bool
 
-// Install command flags
+// Install command flags.
 var (
 	installInto               string
 	installYes                bool
@@ -116,7 +116,7 @@ var adoptCmd = &cobra.Command{
 func init() {
 	rootCmd.PersistentFlags().BoolVar(&versionFlag, "version", false, "Print version information")
 
-	// Install command flags
+	// Install command flags.
 	installCmd.Flags().StringVarP(&installInto, "into", "d", "", "Install to specified directory")
 	installCmd.Flags().BoolVarP(&installYes, "yes", "y", false, "Skip confirmation prompts")
 	installCmd.Flags().BoolVar(&installIncludePrereleases, "include-prereleases", false, "Allow installing prerelease versions")

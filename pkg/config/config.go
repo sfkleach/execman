@@ -7,14 +7,14 @@ import (
 	"path/filepath"
 )
 
-// Config represents the execman configuration
+// Config represents the execman configuration.
 type Config struct {
 	DefaultInstallDir  string `json:"default_install_dir,omitempty"`
 	IncludePrereleases bool   `json:"include_prereleases"`
 	path               string // internal, not serialized
 }
 
-// DefaultConfigPath returns the default config file path
+// DefaultConfigPath returns the default config file path.
 func DefaultConfigPath() (string, error) {
 	configDir, err := os.UserConfigDir()
 	if err != nil {
@@ -23,7 +23,7 @@ func DefaultConfigPath() (string, error) {
 	return filepath.Join(configDir, "execman", "config.json"), nil
 }
 
-// Load loads the config from the default location
+// Load loads the config from the default location.
 func Load() (*Config, error) {
 	path, err := DefaultConfigPath()
 	if err != nil {
@@ -32,9 +32,9 @@ func Load() (*Config, error) {
 	return LoadFrom(path)
 }
 
-// LoadFrom loads the config from a specific path
+// LoadFrom loads the config from a specific path.
 func LoadFrom(path string) (*Config, error) {
-	// If file doesn't exist, return a new config with defaults
+	// If file doesn't exist, return a new config with defaults.
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
@@ -60,7 +60,7 @@ func LoadFrom(path string) (*Config, error) {
 
 	cfg.path = path
 
-	// Set defaults if not specified
+	// Set defaults if not specified.
 	if cfg.DefaultInstallDir == "" {
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
@@ -72,9 +72,9 @@ func LoadFrom(path string) (*Config, error) {
 	return &cfg, nil
 }
 
-// Save saves the config to disk
+// Save saves the config to disk.
 func (c *Config) Save() error {
-	// Ensure directory exists
+	// Ensure directory exists.
 	dir := filepath.Dir(c.path)
 	if err := os.MkdirAll(dir, 0750); err != nil {
 		return fmt.Errorf("failed to create config directory: %w", err)
@@ -85,7 +85,7 @@ func (c *Config) Save() error {
 		return fmt.Errorf("failed to marshal config: %w", err)
 	}
 
-	// Use 0600 permissions for config file (user read/write only)
+	// Use 0600 permissions for config file (user read/write only).
 	if err := os.WriteFile(c.path, data, 0600); err != nil {
 		return fmt.Errorf("failed to write config: %w", err)
 	}

@@ -12,9 +12,9 @@ import (
 	"strings"
 )
 
-// ExtractBinary extracts a binary from a tar.gz archive
+// ExtractBinary extracts a binary from a tar.gz archive.
 func ExtractBinary(archivePath, destPath string) error {
-	// Open the archive
+	// Open the archive.
 	// #nosec G304 -- Opening archive in temp directory
 	file, err := os.Open(archivePath)
 	if err != nil {
@@ -22,28 +22,28 @@ func ExtractBinary(archivePath, destPath string) error {
 	}
 	defer file.Close()
 
-	// Create gzip reader
+	// Create gzip reader.
 	gzr, err := gzip.NewReader(file)
 	if err != nil {
 		return fmt.Errorf("failed to create gzip reader: %w", err)
 	}
 	defer gzr.Close()
 
-	// Create tar reader
+	// Create tar reader.
 	tr := tar.NewReader(gzr)
 
-	// Get the directory of the destination to create a root scope
+	// Get the directory of the destination to create a root scope.
 	destDir := filepath.Dir(destPath)
 	destName := filepath.Base(destPath)
 
-	// Create a scoped root for the destination directory to prevent path traversal
+	// Create a scoped root for the destination directory to prevent path traversal.
 	root, err := os.OpenRoot(destDir)
 	if err != nil {
 		return fmt.Errorf("failed to create root scope: %w", err)
 	}
 	defer root.Close()
 
-	// Find and extract the first executable file
+	// Find and extract the first executable file.
 	var extracted bool
 	for {
 		header, err := tr.Next()
@@ -54,14 +54,14 @@ func ExtractBinary(archivePath, destPath string) error {
 			return fmt.Errorf("failed to read tar header: %w", err)
 		}
 
-		// Skip directories
+		// Skip directories.
 		if header.Typeflag == tar.TypeDir {
 			continue
 		}
 
-		// Check if file is executable
+		// Check if file is executable.
 		if header.Mode&0111 != 0 {
-			// Extract this file using scoped root
+			// Extract this file using scoped root.
 			destFile, err := root.OpenFile(destName, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0755)
 			if err != nil {
 				return fmt.Errorf("failed to create destination file: %w", err)
@@ -85,7 +85,7 @@ func ExtractBinary(archivePath, destPath string) error {
 	return nil
 }
 
-// CalculateChecksum calculates the SHA256 checksum of a file
+// CalculateChecksum calculates the SHA256 checksum of a file.
 func CalculateChecksum(filePath string) (string, error) {
 	// #nosec G304 -- Calculating checksum of controlled file path
 	file, err := os.Open(filePath)
@@ -102,7 +102,7 @@ func CalculateChecksum(filePath string) (string, error) {
 	return "sha256:" + hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-// VerifyChecksum verifies a file's checksum against an expected value
+// VerifyChecksum verifies a file's checksum against an expected value.
 func VerifyChecksum(filePath, expectedChecksum string) error {
 	actualChecksum, err := CalculateChecksum(filePath)
 	if err != nil {
@@ -116,7 +116,7 @@ func VerifyChecksum(filePath, expectedChecksum string) error {
 	return nil
 }
 
-// FindChecksumInFile finds the checksum for a specific file in a checksums.txt file
+// FindChecksumInFile finds the checksum for a specific file in a checksums.txt file.
 func FindChecksumInFile(checksumsPath, targetFilename string) (string, error) {
 	// #nosec G304 -- Reading checksums from temp directory
 	data, err := os.ReadFile(checksumsPath)
@@ -131,13 +131,13 @@ func FindChecksumInFile(checksumsPath, targetFilename string) (string, error) {
 			continue
 		}
 
-		// Format can be: "checksum  filename" or "checksum filename"
+		// Format can be: "checksum  filename" or "checksum filename".
 		parts := strings.Fields(line)
 		if len(parts) >= 2 {
 			checksum := parts[0]
 			filename := parts[len(parts)-1]
 
-			// Handle paths in filename (extract basename)
+			// Handle paths in filename (extract basename).
 			filename = filepath.Base(filename)
 
 			if filename == targetFilename {

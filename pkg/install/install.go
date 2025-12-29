@@ -15,7 +15,7 @@ import (
 	"github.com/sfkleach/execman/pkg/registry"
 )
 
-// Options represents the install command options
+// Options represents the install command options.
 type Options struct {
 	Source             string
 	Into               string
@@ -23,9 +23,9 @@ type Options struct {
 	IncludePrereleases bool
 }
 
-// Run executes the install command
+// Run executes the install command.
 func Run(opts Options) error {
-	// Load registry and config
+	// Load registry and config.
 	reg, err := registry.Load()
 	if err != nil {
 		return fmt.Errorf("failed to load registry: %w", err)
@@ -36,13 +36,13 @@ func Run(opts Options) error {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	// Parse source
+	// Parse source.
 	owner, repo, version, err := github.ParseSource(opts.Source)
 	if err != nil {
 		return err
 	}
 
-	// Use config defaults if not specified
+	// Use config defaults if not specified.
 	if opts.Into == "" {
 		opts.Into = cfg.DefaultInstallDir
 	}
@@ -50,7 +50,7 @@ func Run(opts Options) error {
 		opts.IncludePrereleases = cfg.IncludePrereleases
 	}
 
-	// Fetch release
+	// Fetch release.
 	var release *github.Release
 	if version != "" {
 		fmt.Printf("Fetching release %s from %s/%s...\n", version, owner, repo)
@@ -64,7 +64,7 @@ func Run(opts Options) error {
 		return err
 	}
 
-	// Check if already installed
+	// Check if already installed.
 	execName := repo
 	if existing, found := reg.Get(execName); found {
 		if existing.Version == version {
@@ -82,7 +82,7 @@ func Run(opts Options) error {
 		}
 	}
 
-	// Confirm installation
+	// Confirm installation.
 	targetPath := filepath.Join(opts.Into, execName)
 	fmt.Printf("\nInstallation Details:\n")
 	fmt.Printf("  Repository: %s\n", github.ToURL(owner, repo))
@@ -101,7 +101,7 @@ func Run(opts Options) error {
 		}
 	}
 
-	// Find matching asset
+	// Find matching asset.
 	fmt.Println("\nFinding matching asset...")
 	asset, err := github.FindAsset(release.Assets, runtime.GOOS, runtime.GOARCH)
 	if err != nil {
@@ -113,7 +113,7 @@ func Run(opts Options) error {
 	}
 	fmt.Printf("Found: %s\n", asset.Name)
 
-	// Create temp directory for download
+	// Create temp directory for download.
 	tempDir, err := os.MkdirTemp("", "execman-*")
 	if err != nil {
 		return fmt.Errorf("failed to create temp directory: %w", err)
@@ -122,14 +122,14 @@ func Run(opts Options) error {
 
 	archivePath := filepath.Join(tempDir, asset.Name)
 
-	// Download asset
+	// Download asset.
 	fmt.Printf("\nDownloading %s...\n", asset.Name)
 	if err := github.DownloadAsset(asset, archivePath); err != nil {
 		return err
 	}
 	fmt.Println("Download complete.")
 
-	// Try to download and verify checksum (optional, won't fail if not available)
+	// Try to download and verify checksum (optional, won't fail if not available).
 	checksumPath := filepath.Join(tempDir, "checksums.txt")
 	var expectedChecksum string
 	for _, a := range release.Assets {
@@ -155,26 +155,26 @@ func Run(opts Options) error {
 		}
 	}
 
-	// Ensure target directory exists
+	// Ensure target directory exists.
 	// #nosec G301 -- Install directory needs 0755 for executables to be accessible
 	if err := os.MkdirAll(opts.Into, 0755); err != nil {
 		return fmt.Errorf("failed to create target directory: %w", err)
 	}
 
-	// Extract binary
+	// Extract binary.
 	fmt.Println("\nExtracting binary...")
 	if err := archive.ExtractBinary(archivePath, targetPath); err != nil {
 		return fmt.Errorf("failed to extract binary: %w", err)
 	}
 
-	// Calculate checksum of installed binary
+	// Calculate checksum of installed binary.
 	fmt.Println("Calculating checksum of installed binary...")
 	checksum, err := archive.CalculateChecksum(targetPath)
 	if err != nil {
 		return fmt.Errorf("failed to calculate checksum: %w", err)
 	}
 
-	// Register executable
+	// Register executable.
 	fmt.Println("Updating registry...")
 	platformStr := fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH)
 	reg.Add(execName, &registry.Executable{
