@@ -73,8 +73,17 @@ func GetLatestRelease(owner, repo string, includePrereleases bool) (*Release, er
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("GitHub API error (status %d): %s", resp.StatusCode, string(body))
+		switch resp.StatusCode {
+		case http.StatusNotFound:
+			return nil, fmt.Errorf("repository %s/%s not found or has no releases", owner, repo)
+		case http.StatusForbidden:
+			return nil, fmt.Errorf("access forbidden (rate limit exceeded or private repository): %s/%s", owner, repo)
+		case http.StatusUnauthorized:
+			return nil, fmt.Errorf("authentication required to access %s/%s", owner, repo)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, fmt.Errorf("GitHub API error (status %d): %s", resp.StatusCode, string(body))
+		}
 	}
 
 	var releases []Release
@@ -108,8 +117,17 @@ func GetRelease(owner, repo, tag string) (*Release, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("GitHub API error (status %d): %s", resp.StatusCode, string(body))
+		switch resp.StatusCode {
+		case http.StatusNotFound:
+			return nil, fmt.Errorf("release %s not found in repository %s/%s", tag, owner, repo)
+		case http.StatusForbidden:
+			return nil, fmt.Errorf("access forbidden (rate limit exceeded or private repository): %s/%s", owner, repo)
+		case http.StatusUnauthorized:
+			return nil, fmt.Errorf("authentication required to access %s/%s", owner, repo)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, fmt.Errorf("GitHub API error (status %d): %s", resp.StatusCode, string(body))
+		}
 	}
 
 	var release Release
@@ -122,21 +140,26 @@ func GetRelease(owner, repo, tag string) (*Release, error) {
 
 // FindAsset finds a matching asset for the given OS and architecture.
 func FindAsset(assets []Asset, osName, arch string) (*Asset, error) {
-	// Pattern variations to match.
-	patterns := []string{
-		fmt.Sprintf("_%s_%s\\.tar\\.gz$", osName, arch),
-		fmt.Sprintf("-%s-%s\\.tar\\.gz$", osName, arch),
-		fmt.Sprintf("_%s_%s$", osName, arch),
-		fmt.Sprintf("-%s-%s$", osName, arch),
+	// Build architecture pattern with common aliases.
+	archPattern := arch
+	switch arch {
+	case "amd64":
+		archPattern = "(amd64|x86_64)"
+	case "x86_64":
+		archPattern = "(amd64|x86_64)"
+	case "386":
+		archPattern = "(386|i386|x86)"
+	case "arm64":
+		archPattern = "(arm64|aarch64)"
 	}
 
+	// Build pattern for common naming conventions (case-insensitive).
+	pattern := fmt.Sprintf("(?i)[_-]%s[_-]%s(\\.(tar\\.gz|zip))?$", osName, archPattern)
+
 	for _, asset := range assets {
-		assetLower := strings.ToLower(asset.Name)
-		for _, pattern := range patterns {
-			matched, _ := regexp.MatchString(pattern, assetLower)
-			if matched {
-				return &asset, nil
-			}
+		matched, _ := regexp.MatchString(pattern, asset.Name)
+		if matched {
+			return &asset, nil
 		}
 	}
 

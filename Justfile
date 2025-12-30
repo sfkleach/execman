@@ -48,7 +48,7 @@ tidy:
 
 build:
     mkdir -p bin
-    go build -ldflags "-X github.com/sfkleach/execman/pkg/commands.Source=https://github.com/sfkleach/execman" -o bin/execman ./cmd/execman
+    go build -ldflags "-X github.com/sfkleach/execman/pkg/version.Version=$(git describe --tags --always --dirty 2>/dev/null || echo 'dev') -X github.com/sfkleach/execman/pkg/version.GitCommit=$(git rev-parse --short HEAD 2>/dev/null || echo 'unknown') -X github.com/sfkleach/execman/pkg/version.BuildDate=$(date -u +%Y-%m-%dT%H:%M:%SZ)" -o bin/execman ./cmd/execman
 
 install:
     go install ./cmd/execman

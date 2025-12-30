@@ -1,10 +1,11 @@
 package version
 
 // Version information.
-const (
-	Version   = "0.1.0"
-	BuildDate = "TBD"
-	GitCommit = "TBD"
+// These variables are set via ldflags during build.
+var (
+	Version   = "dev"
+	BuildDate = "unknown"
+	GitCommit = "unknown"
 )
 
 // GetVersion returns the current version.
