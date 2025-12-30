@@ -28,9 +28,6 @@ builds:
 archives:
   - id: execman-archive
     name_template: "execman_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-    builds:
-      - execman
-    rlcp: true
     files:
       - README.md
       - LICENSE*
