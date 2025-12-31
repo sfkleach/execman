@@ -20,10 +20,9 @@ type Executable struct {
 
 // Registry represents the execman registry.
 type Registry struct {
-	SchemaVersion     int                    `json:"schema_version"`
-	DefaultInstallDir string                 `json:"default_install_dir"`
-	Executables       map[string]*Executable `json:"executables"`
-	path              string                 // internal, not serialized
+	SchemaVersion int                    `json:"schema_version"`
+	Executables   map[string]*Executable `json:"executables"`
+	path          string                 // internal, not serialized
 }
 
 // DefaultRegistryPath returns the default registry file path.
@@ -48,16 +47,10 @@ func Load() (*Registry, error) {
 func LoadFrom(path string) (*Registry, error) {
 	// If file doesn't exist, return a new empty registry.
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			return nil, fmt.Errorf("failed to get user home directory: %w", err)
-		}
-		defaultInstallDir := filepath.Join(homeDir, ".local", "bin")
 		return &Registry{
-			SchemaVersion:     1,
-			DefaultInstallDir: defaultInstallDir,
-			Executables:       make(map[string]*Executable),
-			path:              path,
+			SchemaVersion: 1,
+			Executables:   make(map[string]*Executable),
+			path:          path,
 		}, nil
 	}
 

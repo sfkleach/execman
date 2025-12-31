@@ -36,7 +36,6 @@ Location: `~/.config/execman/registry.json`
 ```json
 {
   "schema_version": 1,
-  "default_install_dir": "/home/user/.local/bin",
   "executables": {
     "nutmeg-run": {
       "source": "https://github.com/sfkleach/nutmeg-run",
