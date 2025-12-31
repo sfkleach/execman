@@ -173,12 +173,15 @@ Managed executables:
 execman check
 execman check nutmeg-run
 execman check --json
+execman check --no-skip
 ```
 
 ### Behavior
 
 - With no arguments: Check all managed executables for updates
 - With argument: Check specific executable for updates
+- By default: Only shows executables with updates available
+- With `--no-skip`: Shows all executables including up-to-date ones
 
 ### Output Format (Text)
 
@@ -186,9 +189,19 @@ execman check --json
 Checking for updates...
 
   nutmeg-run      v1.2.3 → v1.3.0    update available
+
+1 up to date, 1 update available. Run 'execman update' to install updates.
+```
+
+### Output Format (Text with --no-skip)
+
+```
+Checking for updates...
+
+  nutmeg-run      v1.2.3 → v1.3.0    update available
   pathman         v0.1.0             up to date
 
-1 update available. Run 'execman update' to install updates.
+1 up to date, 1 update available. Run 'execman update' to install updates.
 ```
 
 ### Output Format (JSON)
@@ -218,6 +231,7 @@ Checking for updates...
 | Option | Description |
 |--------|-------------|
 | `--json` | Output as JSON |
+| `--no-skip` | Show all executables, including up-to-date ones |
 | `--include-prereleases` | Include prerelease versions in check |
 
 ## Part 5: Update Command

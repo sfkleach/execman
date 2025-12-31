@@ -30,6 +30,7 @@ type ExecutableStatus struct {
 func NewCheckCommand() *cobra.Command {
 	var jsonOutput bool
 	var includePrereleases bool
+	var noSkip bool
 
 	cmd := &cobra.Command{
 		Use:   "check [executable]",
@@ -41,17 +42,18 @@ func NewCheckCommand() *cobra.Command {
 			if len(args) > 0 {
 				name = args[0]
 			}
-			return runCheck(name, jsonOutput, includePrereleases)
+			return runCheck(name, jsonOutput, includePrereleases, noSkip)
 		},
 	}
 
 	cmd.Flags().BoolVar(&jsonOutput, "json", false, "Output as JSON")
 	cmd.Flags().BoolVar(&includePrereleases, "include-prereleases", false, "Include prerelease versions in check")
+	cmd.Flags().BoolVar(&noSkip, "no-skip", false, "Show all executables, including up-to-date ones")
 
 	return cmd
 }
 
-func runCheck(name string, jsonOutput, includePrereleases bool) error {
+func runCheck(name string, jsonOutput, includePrereleases, noSkip bool) error {
 	// Load registry.
 	reg, err := registry.Load()
 	if err != nil {
@@ -102,6 +104,7 @@ func runCheck(name string, jsonOutput, includePrereleases bool) error {
 
 	statuses := make([]ExecutableStatus, 0, len(names))
 	updatesAvailable := 0
+	upToDateCount := 0
 
 	for _, n := range names {
 		exec, ok := reg.Get(n)
@@ -132,6 +135,8 @@ func runCheck(name string, jsonOutput, includePrereleases bool) error {
 
 		if updateAvailable {
 			updatesAvailable++
+		} else {
+			upToDateCount++
 		}
 
 		status := ExecutableStatus{
@@ -145,7 +150,7 @@ func runCheck(name string, jsonOutput, includePrereleases bool) error {
 		if !jsonOutput {
 			if updateAvailable {
 				fmt.Printf("  %-15s %s → %-9s update available\n", n, exec.Version, latestVersion)
-			} else {
+			} else if noSkip {
 				fmt.Printf("  %-15s %-9s          up to date\n", n, exec.Version)
 			}
 		}
@@ -164,11 +169,15 @@ func runCheck(name string, jsonOutput, includePrereleases bool) error {
 	// Text summary.
 	fmt.Println()
 	if updatesAvailable == 0 {
-		fmt.Println("All executables are up to date.")
-	} else if updatesAvailable == 1 {
-		fmt.Println("1 update available. Run 'execman update' to install updates.")
+		fmt.Printf("%d up to date, 0 updates available.\n", upToDateCount)
 	} else {
-		fmt.Printf("%d updates available. Run 'execman update' to install updates.\n", updatesAvailable)
+		fmt.Printf("%d up to date, %d update", upToDateCount, updatesAvailable)
+		if updatesAvailable == 1 {
+			fmt.Print(" available")
+		} else {
+			fmt.Print("s available")
+		}
+		fmt.Println(". Run 'execman update' to install updates.")
 	}
 
 	return nil
