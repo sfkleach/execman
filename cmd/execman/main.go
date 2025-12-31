@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/sfkleach/execman/pkg/install"
+	"github.com/sfkleach/execman/pkg/list"
 	"github.com/sfkleach/execman/pkg/version"
 	"github.com/spf13/cobra"
 )
@@ -68,15 +69,6 @@ var infoCmd = &cobra.Command{
 	},
 }
 
-var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List managed executables (TBD)",
-	Long:  `List managed executables (TBD)`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("list subcommand - TBD")
-	},
-}
-
 var checkCmd = &cobra.Command{
 	Use:   "check",
 	Short: "Check executable status (TBD)",
@@ -124,7 +116,7 @@ func init() {
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(installCmd)
 	rootCmd.AddCommand(infoCmd)
-	rootCmd.AddCommand(listCmd)
+	rootCmd.AddCommand(list.NewListCommand())
 	rootCmd.AddCommand(checkCmd)
 	rootCmd.AddCommand(updateCmd)
 	rootCmd.AddCommand(removeCmd)
