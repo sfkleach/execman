@@ -1,6 +1,40 @@
 # Execman
 
-Execman is a command-line tool for managing standalone executables from GitHub releases.
+Execman is a command-line tool for managing standalone executables from GitHub releases. It can be used on its own or paired with the $PATH management utility `pathman`, which can be installed at the same time.
+
+## Quick Start
+
+### First Time Installation
+
+**Option 1: Using the install script** (recommended):
+
+```bash
+curl -sSL https://raw.githubusercontent.com/sfkleach/execman/main/scripts/install.sh | bash
+```
+
+This downloads execman and initializes it in `~/.local/bin`.
+
+**Option 2: Using Go**:
+
+```bash
+go install github.com/sfkleach/execman/cmd/execman@latest
+```
+
+**Option 3: Download from releases**:
+
+Download the appropriate archive for your platform from the [releases page](https://github.com/sfkleach/execman/releases/latest), extract it, and run:
+
+```bash
+./execman init ~/.local/bin
+```
+
+### With Pathman Integration
+
+To also install [pathman](https://github.com/sfkleach/pathman) and automatically configure your PATH:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/sfkleach/execman/main/scripts/install-with-pathman.sh | bash
+```
 
 ## Features
 
@@ -27,6 +61,18 @@ just build
 ```
 
 ## Usage
+
+### Initialize execman
+
+```bash
+# Initialize configuration and install execman itself
+execman init <folder>
+
+# Example: Initialize in ~/.local/bin
+execman init ~/.local/bin
+```
+
+This creates the configuration and registry files, then installs execman itself from GitHub with proper metadata.
 
 ### Install an executable
 
@@ -143,6 +189,7 @@ execman [command] --help
 ## Commands
 
 - `version` - Print the version number of execman
+- `init` - Initialize execman configuration and install execman itself
 - `install` - Install an executable from GitHub releases
 - `list` (alias: `ls`) - List managed executables with optional filtering and detailed view
 - `check` - Check for available updates and verify integrity
@@ -196,6 +243,10 @@ execman remove nutmeg-run
 execman forget pathman
 ```
 
+## Uninstalling
+
+To remove execman from your system, see the [uninstall instructions](docs/uninstall-execman.md).
+
 ## Project Structure
 
 ```
@@ -209,6 +260,7 @@ execman/
 │   ├── config/              # Configuration management
 │   ├── forget/              # Forget command implementation
 │   ├── github/              # GitHub API integration
+│   ├── init/                # Init command implementation
 │   ├── install/             # Install command implementation
 │   ├── list/                # List command implementation
 │   ├── registry/            # Registry management
@@ -216,6 +268,9 @@ execman/
 │   ├── symlink/             # Symlink detection and handling
 │   ├── update/              # Update command implementation
 │   └── version/             # Version information
+├── scripts/
+│   ├── install.sh           # Installation script
+│   └── install-with-pathman.sh  # Installation script with pathman
 ├── go.mod
 └── README.md
 ```

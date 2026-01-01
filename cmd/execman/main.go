@@ -6,6 +6,7 @@ import (
 
 	"github.com/sfkleach/execman/pkg/check"
 	"github.com/sfkleach/execman/pkg/forget"
+	initpkg "github.com/sfkleach/execman/pkg/init"
 	"github.com/sfkleach/execman/pkg/install"
 	"github.com/sfkleach/execman/pkg/list"
 	"github.com/sfkleach/execman/pkg/remove"
@@ -76,6 +77,7 @@ func init() {
 	installCmd.Flags().BoolVar(&installIncludePrereleases, "include-prereleases", false, "Allow installing prerelease versions")
 
 	rootCmd.AddCommand(version.NewVersionCommand())
+	rootCmd.AddCommand(initpkg.NewInitCommand())
 	rootCmd.AddCommand(installCmd)
 	rootCmd.AddCommand(list.NewListCommand())
 	rootCmd.AddCommand(check.NewCheckCommand())
